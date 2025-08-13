@@ -11,7 +11,7 @@ st.set_page_config(page_title="Options Viewer", layout="wide")
 @st.cache_data(ttl=300)
 def fetch_price(symbol: str):
      t = yf.Ticker(symbol)
-    p = t.fast_info.get("last_price")
+     p = t.fast_info.get("last_price")
     if p is None:
         hist = t.history(period="1d")
         if not hist.empty:
