@@ -75,14 +75,10 @@ def iv_surface(symbol: str, spot: float, exps: list[str], max_exps=8, strikes_ea
     frames = []
     for exp in exps[:max_exps]:
         try:
-            ch = t.option_chain(exp)
-        except Exception:
-            continue
-        both = pd.concat(
-            [ch.calls[["strike", "impliedVolatility"]],
-             ch.puts[["strike", "impliedVolatility"]]],
-            ignore_index=True
-        ).dropna()
+            oc = t.option_chain(exp)  # this path isn’t cached; it’s inside iv_surface already
+calls = oc.calls[["strike","impliedVolatility"]]
+puts  = oc.puts[["strike","impliedVolatility"]]
+both = pd.concat([calls, puts], ignore_index=True).dropna()
         if both.empty:
             continue
         both["moneyness"] = (both["strike"] - spot).abs()
@@ -138,8 +134,11 @@ with col_left:
 with col_right:
     st.subheader("Dated Info (9 ATM-centered)")
     ch = fetch_chain(symbol, exp)
-    calls9, atm_c = centered(ch.calls, price, 9)
-    puts9,  atm_p = centered(ch.puts,  price, 9)
+calls_df = ch["calls"]
+puts_df  = ch["puts"]
+
+calls9, atm_c = centered(calls_df, price, 9)
+puts9,  atm_p = centered(puts_df,  price, 9)
 
     c1, c2 = st.columns(2)
     with c1:
