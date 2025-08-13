@@ -147,4 +147,4 @@ with right:
     calls_df = ch["calls"]
     puts_df  = ch["puts"]
 
-    calls9, atm_c = centered(calls_df
+    calls9, atm_c = centered(calls_df)
