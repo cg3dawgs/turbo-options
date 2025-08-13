@@ -1,40 +1,40 @@
 import streamlit as st
-... import yfinance as yf
-... import pandas as pd
-... import numpy as np
-... import matplotlib
-... matplotlib.use("Agg")  # non-GUI backend for Streamlit
-... import matplotlib.pyplot as plt
-... 
-... st.set_page_config(page_title="Options Viewer", layout="wide")
-... 
-... @st.cache_data(ttl=300)
-... def fetch_price(symbol: str):
-...     t = yf.Ticker(symbol)
-...     p = t.fast_info.get("last_price")
-...     if p is None:
-...         hist = t.history(period="1d")
-...         if not hist.empty:
-...             p = float(hist["Close"].iloc[-1])
-...     return p
-... 
-... @st.cache_data(ttl=300)
-... def fetch_exps(symbol: str):
-...     return list(yf.Ticker(symbol).options or [])
-... 
-... @st.cache_data(ttl=300)
-... def fetch_chain(symbol: str, exp: str):
-...     return yf.Ticker(symbol).option_chain(exp)
-... 
-... def centered(df, spot, n=9):
-...     if df.empty: return df.copy(), None
-...     s = df.copy()
-...     s["moneyness"] = (s["strike"] - spot).abs()
-...     atm_idx = s["moneyness"].idxmin()
-...     pos = s.index.get_loc(atm_idx)
-...     half = n // 2
-...     start = max(pos - half, 0)
-...     end = min(start + n, len(s))
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")  # non-GUI backend for Streamlit
+import matplotlib.pyplot as plt
+
+st.set_page_config(page_title="Options Viewer", layout="wide")
+
+@st.cache_data(ttl=300)
+def fetch_price(symbol: str):
+     t = yf.Ticker(symbol)
+    p = t.fast_info.get("last_price")
+    if p is None:
+        hist = t.history(period="1d")
+        if not hist.empty:
+            p = float(hist["Close"].iloc[-1])
+    return p
+
+@st.cache_data(ttl=300)
+def fetch_exps(symbol: str):
+    return list(yf.Ticker(symbol).options or [])
+
+@st.cache_data(ttl=300)
+def fetch_chain(symbol: str, exp: str):
+    return yf.Ticker(symbol).option_chain(exp)
+
+def centered(df, spot, n=9):
+    if df.empty: return df.copy(), None
+    s = df.copy()
+    s["moneyness"] = (s["strike"] - spot).abs()
+    atm_idx = s["moneyness"].idxmin()
+    pos = s.index.get_loc(atm_idx)
+    half = n // 2
+    start = max(pos - half, 0)
+    end = min(start + n, len(s))
     start = max(end - n, 0)
     sub = s.iloc[start:end].copy()
     return sub, s.loc[atm_idx, "strike"]
